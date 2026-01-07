@@ -1,5 +1,5 @@
 import os
-# os.environ['OMP_NUM_THREADS'] = '4'
+os.environ['OMP_NUM_THREADS'] = '16'
 from mesh_build import build_mesh_from_ns_ne
 import anuga
 from datetime import datetime, timedelta

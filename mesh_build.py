@@ -417,7 +417,7 @@ def remove_duplicate_vertices(points, triangles, elevations, tri_boundary_flags)
 
     keys = np.round(pts, 9)
     _, unique_idx, inverse = np.unique(
-        keys.view([('x', float), ('y', float)]),
+        keys.view([('x', float), ('y', float)]).reshape(-1),
         return_index=True, return_inverse=True
     )
 
@@ -473,6 +473,7 @@ def extract_boundary_edges(triangles, boundary_dict):
         edge_set.add(tuple(sorted((a, b))))
 
     return list(edge_set)
+
 
 
 # -------------------------
