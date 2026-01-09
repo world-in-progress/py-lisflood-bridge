@@ -14,7 +14,7 @@ def read_tide_csv(path):
         reader = csv.DictReader(f)
         print("Tide CSV headers:", reader.fieldnames)
         for row in reader:
-            dt = datetime.strptime(row['date'].strip() + " " + row['time'].strip(), "%m/%d/%Y %H:%M:%S")
+            dt = datetime.strptime(row['date'].strip() + " " + row['time'].strip(), "%d/%m/%Y %H:%M:%S")
             stage = float(row['chaowei'])
             data.append((dt, stage))
     data.sort(key=lambda x: x[0])

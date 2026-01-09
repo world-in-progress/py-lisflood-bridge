@@ -205,8 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-
-*.sww
 *.csv
 *.txt
 *.ply
+*.sww
+*.zip

@@ -1,0 +1,47 @@
+import numpy as np
+
+# ===============================
+# 文件路径
+# ===============================
+CSV_FILE = "coord_2326.csv"
+PLY_FILE = "stations_2326.ply"
+
+# ===============================
+# 读取 CSV
+# ===============================
+stations = []
+with open(CSV_FILE, "r") as f:
+    header = f.readline()  # 跳过表头
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split(",")
+        name = parts[0]
+        easting = float(parts[3])
+        northing = float(parts[4])
+        stations.append((name, easting, northing))
+
+print(f"✔ Loaded {len(stations)} stations")
+
+# ===============================
+# 生成 PLY 文件（点云）
+# ===============================
+with open(PLY_FILE, "w") as f:
+    # 写头
+    f.write("ply\n")
+    f.write("format ascii 1.0\n")
+    f.write(f"element vertex {len(stations)}\n")
+    f.write("property float x\n")
+    f.write("property float y\n")
+    f.write("property float z\n")
+    f.write("property uchar red\n")
+    f.write("property uchar green\n")
+    f.write("property uchar blue\n")
+    f.write("end_header\n")
+
+    # 写每个点，z 默认 0，颜色白色
+    for name, x, y in stations:
+        f.write(f"{x} {y} 0 255 255 255\n")
+
+print(f"✔ PLY saved: {PLY_FILE}")

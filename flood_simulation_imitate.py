@@ -82,9 +82,13 @@ def main():
     # ------------------
     rain_rate_func, rain_t0,rts = process_rain_data(rain_path)
 
-    # 把降雨 forcing 添加到 domain
-    rain_forcing = anuga.Rainfall(domain, rate=rain_rate_func, default_rate=0.0)#anuga接受的降雨率变量单位是mm/s
-    domain.forcing_terms.append(rain_forcing)
+    # # 把降雨 forcing 添加到 domain
+    # rain_forcing = anuga.Rainfall(domain, rate=rain_rate_func, default_rate=0.0)#anuga接受的降雨率变量单位是mm/s
+    # domain.forcing_terms.append(rain_forcing)
+
+    rain_times = rts - rts[0]          # seconds
+    rain_rates = rain_rate_func*0.001  # m/s
+
 
     # ------------------
     # 处理下渗：利用降雨和type信息
