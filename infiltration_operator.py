@@ -36,6 +36,14 @@ class HortonInfiltrationByTypeOperator(Operator):
             7: (3.0, 0.1, 2.0),
             # 4,6 默认 0
         }
+        self.frs: list[float] = [
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        ]
+
+        # Initialize frs
+        for land_type, (f0, fc, k) in self.params.items():
+            fr_index = land_type - 1
+            self.frs[fr_index] = horton_decay(f0, fc, k, 0.0) * INCH_TO_M / 3600.0
 
     def __call__(self, domain:Domain=None):
         if domain is None:
@@ -56,30 +64,29 @@ class HortonInfiltrationByTypeOperator(Operator):
             if isinstance(forcing, anuga.Rainfall):
                 rain_rate = forcing.rate(t) if callable(forcing.rate) else forcing.rate
                 break
-
+        
+        # Update frs
         if rain_rate > 0.0:
             self.cumulative_rain_time += dt
-        else:
-            return  # 不下雨，不发生 Horton 下渗
+            t_hr = self.cumulative_rain_time / 3600.0
 
-        t_hr = self.cumulative_rain_time / 3600.0
-
-        stage = self.stage.centroid_values
-        elev = self.elev.centroid_values
+            for land_type, (f0, fc, k) in self.params.items():
+                fr_index = land_type - 1
+                self.frs[fr_index] = horton_decay(f0, fc, k, t_hr) * INCH_TO_M / 3600.0
 
         # -------------------------
         # 逐 type 处理
         # -------------------------
+        elev = self.elev.centroid_values
+        stage = self.stage.centroid_values
         for land_type, (f0, fc, k) in self.params.items():
             mask = (self.tri_types == land_type)
             if not np.any(mask):
                 continue
-
-            fr_inch_hr = horton_decay(f0, fc, k, t_hr)
-            fr_m_s = fr_inch_hr * INCH_TO_M / 3600.0
-
+            
             # 扣减水深（不能低于地面）
-            stage[mask] -= fr_m_s * dt
+            fr_index = land_type - 1
+            stage[mask] -= self.frs[fr_index] * dt
             stage[mask] = np.maximum(stage[mask], elev[mask])
 
         # water body / fish pond（4,6）自动为 0，不处理

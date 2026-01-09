@@ -417,7 +417,7 @@ def remove_duplicate_vertices(points, triangles, elevations, tri_boundary_flags)
 
     keys = np.round(pts, 9)
     _, unique_idx, inverse = np.unique(
-        keys.view([('x', float), ('y', float)]).reshape(-1),
+        keys.view([('x', float), ('y', float)]),
         return_index=True, return_inverse=True
     )
 
@@ -473,7 +473,6 @@ def extract_boundary_edges(triangles, boundary_dict):
         edge_set.add(tuple(sorted((a, b))))
 
     return list(edge_set)
-
 
 
 # -------------------------
@@ -582,11 +581,22 @@ def build_mesh_from_ns_ne(ns_path, ne_path):
 
     print(f"mesh: points={len(pts)}, triangles={len(tris)}, boundary edges={len(boundary)}")
 
+    
+
     export_ply(pts, tris, elevs, "mesh_output.ply")
         # ⭐ 新增：boundary
     boundary_edges = extract_boundary_edges(tris, boundary)
     export_boundary_ply(pts, elevs, boundary_edges, "mesh_boundary.ply")
      # ⭐ 先把 NS 原始 boundary 导出来
     export_ns_boundary_sides_ply(side_map, "ns_boundary_sides.ply")
+
+    # =========================
+    # ⭐ 新增：打印 x/y 范围
+    # =========================
+    pts_array = np.array(pts)
+    min_x, max_x = pts_array[:, 0].min(), pts_array[:, 0].max()
+    min_y, max_y = pts_array[:, 1].min(), pts_array[:, 1].max()
+    print(f"mesh X range: {min_x:.3f} ~ {max_x:.3f}")
+    print(f"mesh Y range: {min_y:.3f} ~ {max_y:.3f}")
     return pts, tris, elevs, boundary, tri_types
 
